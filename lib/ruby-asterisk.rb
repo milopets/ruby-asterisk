@@ -88,7 +88,7 @@ module RubyAsterisk
     def extension_state(exten, context, action_id = nil)
       execute 'ExtensionState', {'Exten' => exten, 'Context' => context, 'ActionID' => action_id}
     end
-    
+
     def device_state_list
       execute 'DeviceStateList'
     end
@@ -170,11 +170,11 @@ module RubyAsterisk
     def sip_peers
       execute 'SIPpeers'
     end
-    
+
     def sip_show_peer(peer)
       execute 'SIPshowpeer', {'Peer' => peer}
     end
-    
+
     def hangup(channel)
       execute 'Hangup', {'Channel' => channel}
     end
@@ -184,7 +184,7 @@ module RubyAsterisk
     end
 
     def wait_event(timeout=-1)
-      @timeout = [@timeout, timeout].max
+      @timeout = timeout || @timeout
       execute 'WaitEvent', {'Timeout' => timeout}
     end
 
@@ -218,7 +218,7 @@ module RubyAsterisk
       request.commands.each do |command|
         @session.write(command)
       end
-      @session.waitfor('Match' => /ActionID: #{request.action_id}.*?\n\n/m, "Timeout" => @timeout, "Waittime" => @wait_time) do |data|
+      @session.waitfor('Match' => /ActionID: #{request.action_id}.*?\n\n/m, "Timeout" => @timeout < 0 ? false : @timeout, "Waittime" => @wait_time) do |data|
         request.response_data << data.to_s
       end
       Response.new(command, request.response_data)
